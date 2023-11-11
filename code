@@ -1,0 +1,76 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
+const int sizeX = 10;
+const int sizeY = 10;
+
+// Function to print the maze
+void printMaze(const std::vector<std::vector<char>>& maze) {
+    for (const auto& row : maze) {
+        for (char cell : row) {
+            std::cout << cell << " ";
+        }
+        std::cout << "\n";
+    }
+}
+
+// Function to generate a random maze
+void generateMaze(std::vector<std::vector<char>>& maze) {
+    for (int i = 0; i < sizeY; ++i) {
+        std::vector<char> row;
+        for (int j = 0; j < sizeX; ++j) {
+            row.push_back((rand() % 2 == 0) ? '#' : ' '); // 50% chance of being a wall
+        }
+        maze.push_back(row);
+    }
+
+    // Set the start and end points
+    maze[0][0] = 'S';
+    maze[sizeY - 1][sizeX - 1] = 'E';
+}
+
+// Recursive function to solve the maze
+bool solveMaze(std::vector<std::vector<char>>& maze, int x, int y) {
+    if (x < 0 || x >= sizeX || y < 0 || y >= sizeY || maze[y][x] == '#' || maze[y][x] == 'X') {
+        return false; // Hit a wall or already visited
+    }
+
+    if (maze[y][x] == 'E') {
+        return true; // Reached the end
+    }
+
+    // Mark the current cell as visited
+    maze[y][x] = 'X';
+
+    // Try moving in all directions
+    if (solveMaze(maze, x + 1, y) || solveMaze(maze, x - 1, y) || solveMaze(maze, x, y + 1) || solveMaze(maze, x, y - 1)) {
+        return true;
+    }
+
+    // If none of the paths lead to the end, backtrack
+    maze[y][x] = ' ';
+    return false;
+}
+
+int main() {
+    std::srand(std::time(0));
+
+    std::vector<std::vector<char>> maze;
+    generateMaze(maze);
+
+    std::cout << "Random Maze:\n";
+    printMaze(maze);
+
+    std::cout << "\nSolving Maze...\n";
+
+    if (solveMaze(maze, 0, 0)) {
+        std::cout << "\nMaze Solved:\n";
+        printMaze(maze);
+    } else {
+        std::cout << "\nNo solution found.\n";
+    }
+
+    return 0;
+}
